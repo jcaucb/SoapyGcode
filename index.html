@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>G-code Generator</title>
+  <script src="https://unpkg.com/opentype.js@1.3.0"></script>
+  <script src="https://maker.js.org/target/js/browser.maker.js" type="text/javascript"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bezier-js@2/bezier.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/opentype.js@0/dist/opentype.js"></script>
+</head>
+<body>
+  <textarea id="inputText" rows="5" cols="40" placeholder="Enter your text here"></textarea><br>
+  <select id="fontSelect">
+    <option value="Alkatra-VariableFont_wght.ttf">Alkatra Font</option>
+  </select>
+  <select id="fontSizeSelect">
+    <option value="10">10</option>
+    <option value="12">12</option>
+    <option value="14">14</option>
+<option value="16">16</option>
+<option value="18">18</option>
+<option value="20">20</option>
+<option value="24">24</option>
+    <!-- Add more font size options here -->
+  </select>
+  <select id="alignmentSelect">
+    <option value="left">Left</option>
+    <option value="center">Center</option>
+    <option value="right">Right</option>
+  </select>
+  <button id="generateButton">Generate G-code</button>
+
+  <script>
+    async function main() {
+      const inputText = document.getElementById('inputText').value;
+      const fontSize = parseInt(document.getElementById('fontSizeSelect').value);
+      const letterSpacing = 1;
+      const lineHeight = 1.2;
+      const alignment = document.getElementById('alignmentSelect').value;
+      const fontUrl = document.getElementById('fontSelect').value;
+
+      try {
+        const gcode = await generateGcode(inputText, fontSize, letterSpacing, lineHeight, alignment, fontUrl);
+        downloadGcode(gcode);
+      } catch (error) {
+        console.error('Error generating G-code:', error);
+      }
+    }
+
+    function downloadGcode(gcode) {
+      const blob = new Blob([gcode], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'generated_gcode.nc';
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById('generateButton').addEventListener('click', main);
+
+	async function loadFont(url) {
+      return new Promise((resolve, reject) => {
+        opentype.load(url, (err, font) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(font);
+          }
+        });
+      });
+    }
+
+    async function generateGcode(text, fontSize, letterSpacing, lineHeight, alignment, fontUrl) {
+      const font = await loadFont(fontUrl);
+
+      const textModel = new makerjs.models.Text(font, text, fontSize, letterSpacing, lineHeight, alignment);
+      const gcode = makerjs.exporter.toGCode(textModel);
+
+      return gcode;
+    }
+
+  </script>
+</body>
+</html>
+
+
+
