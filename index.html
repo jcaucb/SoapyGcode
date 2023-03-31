@@ -74,8 +74,8 @@
     async function generateGcode(text, fontSize, letterSpacing, lineHeight, alignment, fontUrl) {
       const font = await loadFont(fontUrl);
 
-      const textModel = new makerjs.models.Text(font, text, fontSize, letterSpacing, lineHeight, alignment);
-      const gcode = makerjs.exporter.toGCode(textModel);
+      const textModel = new MakerJs.models.Text(font, text, fontSize, letterSpacing, lineHeight, alignment);
+      const gcode = MakerJs.exporter.toGCode(textModel);
 
       return gcode;
     }
